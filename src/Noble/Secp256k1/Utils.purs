@@ -5,7 +5,7 @@ import Prelude
 import Control.Promise (Promise, toAffE)
 import Effect (Effect)
 import Effect.Aff (Aff)
-import Noble.Secp256k1.Types (Message, MessageHash, PrivateKey)
+import Noble.Secp256k1.ECDSA (Message, MessageHash, PrivateKey)
 
 sha256 :: Message -> Aff MessageHash
 sha256 bytes = toAffE $ _sha256 bytes

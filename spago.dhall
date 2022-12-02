@@ -6,7 +6,6 @@ You can edit this file as you like.
 , dependencies =
   [ "aff"
   , "aff-promise"
-  , "console"
   , "effect"
   , "prelude"
   , "spec"

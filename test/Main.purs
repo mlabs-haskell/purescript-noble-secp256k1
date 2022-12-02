@@ -7,14 +7,19 @@ import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class (liftEffect)
 import Noble.Secp256k1.ECDSA
-  ( getPublicKey
-  , getSharedSecret
-  , recoverPublicKey
-  , sign
-  , signWithRecoveredBit
-  , verify
+  ( Message
+  , getECDSAPublicKey
+  , getECDSASharedSecret
+  , recoverECDSAPublicKey
+  , signECDSA
+  , signECDSAWithRecoveredBit
+  , verifyECDSA
   )
-import Noble.Secp256k1.Types (Message)
+import Noble.Secp256k1.Schnorr
+  ( getSchnorrPublicKey
+  , signSchnorr
+  , verifySchnorr
+  )
 import Noble.Secp256k1.Utils (randomPrivateKey, sha256)
 import Test.Spec (describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -29,43 +34,60 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
       _randomPk <- liftEffect $ randomPrivateKey
       pure unit
   describe "Noble.Secp256k1.ECDSA" do
-    it "getPublicKey" do
+    it "getECDSAPublicKey" do
       privateKey <- liftEffect $ randomPrivateKey
-      let _publicKey = getPublicKey privateKey true
+      let _publicKey = getECDSAPublicKey privateKey true
       pure unit
-    it "sign/verify" do
+    it "signECDSA/verifyECDSA" do
       privateKey <- liftEffect $ randomPrivateKey
       let
-        publicKey = getPublicKey privateKey true
+        publicKey = getECDSAPublicKey privateKey true
         message = unsafeCoerce privateKey
       messageHash <- sha256 message
-      signature <- sign messageHash privateKey
-      let result = verify signature messageHash publicKey
+      signature <- signECDSA messageHash privateKey
+      let result = verifyECDSA signature messageHash publicKey
       result `shouldEqual` true
-      let wrongResult = verify (unsafeCoerce messageHash) messageHash publicKey
+      let
+        wrongResult = verifyECDSA (unsafeCoerce messageHash) messageHash
+          publicKey
       wrongResult `shouldEqual` false
-    it "signWithRecoveredBit/recoverPublicKey" do
+    it "signECDSAWithRecoveredBit/recoverECDSAPublicKey" do
       privateKey <- liftEffect $ randomPrivateKey
       let
-        publicKey = getPublicKey privateKey true
+        publicKey = getECDSAPublicKey privateKey true
         message = unsafeCoerce privateKey
       messageHash <- sha256 message
-      Tuple signature recovered <- signWithRecoveredBit messageHash privateKey
-      let result = verify signature messageHash publicKey
+      Tuple signature recovered <- signECDSAWithRecoveredBit messageHash
+        privateKey
+      let result = verifyECDSA signature messageHash publicKey
       result `shouldEqual` true
-      let wrongResult = verify (unsafeCoerce messageHash) messageHash publicKey
+      let
+        wrongResult = verifyECDSA (unsafeCoerce messageHash) messageHash
+          publicKey
       wrongResult `shouldEqual` false
       let
-        recoveredPublicKey = recoverPublicKey messageHash signature recovered
+        recoveredPublicKey = recoverECDSAPublicKey messageHash signature
+          recovered
           true
       recoveredPublicKey `shouldEqual` publicKey
-    it "getSharedSecret" do
+    it "getECDSASharedSecret" do
       privateKey1 <- liftEffect $ randomPrivateKey
       privateKey2 <- liftEffect $ randomPrivateKey
       let
-        publicKey2 = getPublicKey privateKey2 true
-        _sharedSecret = getSharedSecret privateKey1 publicKey2 false
+        publicKey2 = getECDSAPublicKey privateKey2 true
+        _sharedSecret = getECDSASharedSecret privateKey1 publicKey2 false
       pure unit
+  describe "Noble.Secp256k1.Schnorr" do
+    it "getSchnorrPublicKey / signSchnorr / verifySchnorr" do
+      privateKey <- liftEffect $ randomPrivateKey
+      let
+        publicKey = getSchnorrPublicKey privateKey
+        message = unsafeCoerce privateKey
+      signature <- signSchnorr message privateKey
+      result <- verifySchnorr signature message publicKey
+      result `shouldEqual` true
+      wrongResult <- verifySchnorr (unsafeCoerce privateKey) message publicKey
+      wrongResult `shouldEqual` false
 
 foreign import data Bytes :: Type
 

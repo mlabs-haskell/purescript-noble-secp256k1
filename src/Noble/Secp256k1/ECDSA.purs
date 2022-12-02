@@ -1,62 +1,137 @@
 module Noble.Secp256k1.ECDSA
-  ( sign
-  , signWithRecoveredBit
-  , getPublicKey
-  , getSharedSecret
-  , recoverPublicKey
-  , verify
+  ( signECDSA
+  , signECDSAWithRecoveredBit
+  , getECDSAPublicKey
+  , getECDSASharedSecret
+  , recoverECDSAPublicKey
+  , verifyECDSA
+  , PrivateKey
+  , ECDSAPublicKey
+  , Message
+  , MessageHash
+  , ECDSASignature
+  , ECDSASharedSecret
+  , ECDSARecoveredBit
+  , IsCompressed
   ) where
 
 import Prelude
 
 import Control.Promise (Promise, toAffE)
+import Data.Function (on)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Aff (Aff)
-import Noble.Secp256k1.Types
-  ( IsCompressed
-  , MessageHash
-  , PrivateKey
-  , PublicKey
-  , RecoveredBit
-  , SharedSecret
-  , Signature
-  )
 
-sign :: MessageHash -> PrivateKey -> Aff Signature
-sign msgHash privateKey = toAffE $ _sign msgHash privateKey
+signECDSA :: MessageHash -> PrivateKey -> Aff ECDSASignature
+signECDSA msgHash privateKey = toAffE $ _sign msgHash privateKey
 
-signWithRecoveredBit
-  :: MessageHash -> PrivateKey -> Aff (Tuple Signature RecoveredBit)
-signWithRecoveredBit msgHash privateKey = toAffE $ _signWithRecoveredBit Tuple
+signECDSAWithRecoveredBit
+  :: MessageHash -> PrivateKey -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
+signECDSAWithRecoveredBit msgHash privateKey = toAffE $ _signWithRecoveredBit
+  Tuple
   msgHash
   privateKey
 
-foreign import getPublicKey :: PrivateKey -> IsCompressed -> PublicKey
+foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
 
-foreign import _sign :: MessageHash -> PrivateKey -> Effect (Promise Signature)
+foreign import _sign
+  :: MessageHash -> PrivateKey -> Effect (Promise ECDSASignature)
 
 foreign import _signWithRecoveredBit
   :: (forall a b. a -> b -> Tuple a b)
   -> MessageHash
   -> PrivateKey
-  -> Effect (Promise (Tuple Signature RecoveredBit))
+  -> Effect (Promise (Tuple ECDSASignature ECDSARecoveredBit))
 
-foreign import verify
-  :: Signature
+foreign import verifyECDSA
+  :: ECDSASignature
   -> MessageHash
-  -> PublicKey
+  -> ECDSAPublicKey
   -> Boolean
 
-foreign import getSharedSecret
+foreign import getECDSASharedSecret
   :: PrivateKey
-  -> PublicKey
+  -> ECDSAPublicKey
   -> IsCompressed
-  -> SharedSecret
+  -> ECDSASharedSecret
 
-foreign import recoverPublicKey
+foreign import recoverECDSAPublicKey
   :: MessageHash
-  -> Signature
-  -> RecoveredBit
+  -> ECDSASignature
+  -> ECDSARecoveredBit
   -> IsCompressed
-  -> PublicKey
+  -> ECDSAPublicKey
+
+type IsCompressed = Boolean
+
+foreign import data PrivateKey :: Type
+foreign import data ECDSAPublicKey :: Type
+foreign import data Message :: Type
+foreign import data MessageHash :: Type
+foreign import data ECDSASignature :: Type
+foreign import data ECDSASharedSecret :: Type
+
+type ECDSARecoveredBit = Number
+
+instance Show PrivateKey where
+  show _ = "<PrivateKey contents not exposed>"
+
+instance Eq PrivateKey where
+  eq = eqViaShow
+
+instance Ord PrivateKey where
+  compare = compareViaShow
+
+instance Show ECDSAPublicKey where
+  show x = "(ECDSAPublicKey " <> _showBytes x <> ")"
+
+instance Eq ECDSAPublicKey where
+  eq = eqViaShow
+
+instance Ord ECDSAPublicKey where
+  compare = compareViaShow
+
+instance Show Message where
+  show x = "(Message " <> _showBytes x <> ")"
+
+instance Eq Message where
+  eq = eqViaShow
+
+instance Ord Message where
+  compare = compareViaShow
+
+instance Show MessageHash where
+  show x = "(MessageHash " <> _showBytes x <> ")"
+
+instance Eq MessageHash where
+  eq = eqViaShow
+
+instance Ord MessageHash where
+  compare = compareViaShow
+
+instance Show ECDSASignature where
+  show x = "(ECDSASignature " <> _showBytes x <> ")"
+
+instance Eq ECDSASignature where
+  eq = eqViaShow
+
+instance Ord ECDSASignature where
+  compare = compareViaShow
+
+instance Show ECDSASharedSecret where
+  show x = "(ECDSASharedSecret " <> _showBytes x <> ")"
+
+instance Eq ECDSASharedSecret where
+  eq = eqViaShow
+
+instance Ord ECDSASharedSecret where
+  compare = compareViaShow
+
+foreign import _showBytes :: forall a. a -> String
+
+compareViaShow :: forall a. a -> a -> Ordering
+compareViaShow = compare `on` _showBytes
+
+eqViaShow :: forall a. a -> a -> Boolean
+eqViaShow = eq `on` _showBytes
