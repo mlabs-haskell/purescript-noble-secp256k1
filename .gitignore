@@ -1,0 +1,14 @@
+/bower_components/
+/.pulp-cache/
+/output/
+/generated-docs/
+/.psc-package/
+/.psc*
+/.purs*
+/.psa*
+/.spago
+/.spago2nix*
+.projectile
+.DS_Store
+.idea/
+node_modules
