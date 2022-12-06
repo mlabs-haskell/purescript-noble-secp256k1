@@ -5,13 +5,18 @@ module Noble.Secp256k1.ECDSA
   , getECDSASharedSecret
   , recoverECDSAPublicKey
   , mkPrivateKey
+  , mkECDSAPublicKey
+  , mkMessageHash
+  , privateKeyToUint8Array
+  , eCDSAPublicKeyToUint8Array
+  , messageHashToUint8Array
   , verifyECDSA
   , PrivateKey
   , ECDSAPublicKey
   , Message
   , MessageHash
-  , ECDSASignature
-  , ECDSASharedSecret
+  , ECDSASignature(ECDSASignature)
+  , ECDSASharedSecret(ECDSASharedSecret)
   , ECDSARecoveredBit
   , IsCompressed
   ) where
@@ -21,7 +26,7 @@ import Prelude
 import Control.Promise (Promise, toAffE)
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Function (on)
-import Data.Maybe (Maybe(Just, Nothing))
+import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Aff (Aff)
@@ -36,27 +41,47 @@ signECDSAWithRecoveredBit msgHash privateKey = toAffE $ _signWithRecoveredBit
   msgHash
   privateKey
 
+type Message = Uint8Array
+
 newtype PrivateKey = PrivateKey Uint8Array
 
 mkPrivateKey :: Uint8Array -> Maybe PrivateKey
-mkPrivateKey uint8arr 
+mkPrivateKey uint8arr
   | _isValidPrivateKey uint8arr = Just $ PrivateKey uint8arr
   | otherwise = Nothing
 
+privateKeyToUint8Array :: PrivateKey -> Uint8Array
+privateKeyToUint8Array (PrivateKey uint8arr) = uint8arr
+
 newtype ECDSAPublicKey = ECDSAPublicKey Uint8Array
 
-type Message = Uint8Array
+mkECDSAPublicKey :: Uint8Array -> Maybe ECDSAPublicKey
+mkECDSAPublicKey uint8arr
+  | _byteLength uint8arr == 32 = Just $ ECDSAPublicKey uint8arr
+  | otherwise = Nothing
+
+eCDSAPublicKeyToUint8Array :: ECDSAPublicKey -> Uint8Array
+eCDSAPublicKeyToUint8Array (ECDSAPublicKey uint8arr) = uint8arr
 
 newtype MessageHash = MessageHash Uint8Array
+
+mkMessageHash :: Uint8Array -> Maybe MessageHash
+mkMessageHash uint8arr
+  | _byteLength uint8arr == 32 = Just $ MessageHash uint8arr
+  | otherwise = Nothing
+
+messageHashToUint8Array :: MessageHash -> Uint8Array
+messageHashToUint8Array (MessageHash uint8arr) = uint8arr
 
 newtype ECDSASignature = ECDSASignature Uint8Array
 
 newtype ECDSASharedSecret = ECDSASharedSecret Uint8Array
 
+foreign import _isValidPrivateKey :: Uint8Array -> Boolean
+
+foreign import _byteLength :: Uint8Array -> Int
 
 foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
-
-foreign import _isValidPrivateKey :: Uint8Array -> Boolean
 
 foreign import _sign
   :: MessageHash -> PrivateKey -> Effect (Promise ECDSASignature)

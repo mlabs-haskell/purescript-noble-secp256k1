@@ -1,10 +1,12 @@
 module Noble.Secp256k1.Schnorr
   ( module X
   , SchnorrPublicKey
-  , SchnorrSignature
+  , SchnorrSignature(SchnorrSignature)
   , signSchnorr
   , verifySchnorr
   , getSchnorrPublicKey
+  , mkSchnorrPublicKey
+  , schnorrPublicKeyToUint8Array
   ) where
 
 import Prelude
@@ -12,13 +14,21 @@ import Prelude
 import Control.Promise (Promise, toAffE)
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Function (on)
+import Data.Maybe (Maybe(Just, Nothing))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey) as X
 
-
 newtype SchnorrPublicKey = SchnorrPublicKey Uint8Array
+
+mkSchnorrPublicKey :: Uint8Array -> Maybe SchnorrPublicKey
+mkSchnorrPublicKey uint8array
+  | _byteLength uint8array == 32 = Just $ SchnorrPublicKey uint8array
+  | otherwise = Nothing
+
+schnorrPublicKeyToUint8Array :: SchnorrPublicKey -> Uint8Array
+schnorrPublicKeyToUint8Array (SchnorrPublicKey uint8array) = uint8array
 
 newtype SchnorrSignature = SchnorrSignature Uint8Array
 
@@ -56,6 +66,8 @@ instance Ord SchnorrSignature where
   compare = compareViaShow
 
 foreign import _showBytes :: forall a. a -> String
+
+foreign import _byteLength :: Uint8Array -> Int
 
 compareViaShow :: forall a. a -> a -> Ordering
 compareViaShow = compare `on` _showBytes

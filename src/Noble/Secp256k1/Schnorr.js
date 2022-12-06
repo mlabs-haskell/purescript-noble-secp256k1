@@ -9,3 +9,5 @@ exports._verify = signature => message => publicKey => () =>
 exports.getSchnorrPublicKey = privateKey => lib.schnorr.getPublicKey(privateKey);
 
 exports._showBytes = bytes => '[ ' + bytes.join(', ') + ' ]';
+
+exports._byteLength = bytes => bytes.byteLength

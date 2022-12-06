@@ -22,3 +22,5 @@ exports.recoverECDSAPublicKey = msgHash => signature => recovery => isCompressed
 exports._showBytes = bytes => '[ ' + bytes.join(', ') + ' ]';
 
 exports._isValidPrivateKey = privateKey => lib.utils.isValidPrivateKey(privateKey);
+
+exports._byteLength = bytes => bytes.byteLength
