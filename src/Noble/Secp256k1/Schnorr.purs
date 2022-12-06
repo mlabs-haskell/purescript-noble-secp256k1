@@ -10,11 +10,17 @@ module Noble.Secp256k1.Schnorr
 import Prelude
 
 import Control.Promise (Promise, toAffE)
+import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Function (on)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey) as X
+
+
+newtype SchnorrPublicKey = SchnorrPublicKey Uint8Array
+
+newtype SchnorrSignature = SchnorrSignature Uint8Array
 
 signSchnorr :: Message -> PrivateKey -> Aff SchnorrSignature
 signSchnorr message privateKey = toAffE $ _sign message privateKey
@@ -30,9 +36,6 @@ foreign import _verify
   :: SchnorrSignature -> Message -> SchnorrPublicKey -> Effect (Promise Boolean)
 
 foreign import getSchnorrPublicKey :: PrivateKey -> SchnorrPublicKey
-
-foreign import data SchnorrPublicKey :: Type
-foreign import data SchnorrSignature :: Type
 
 instance Show SchnorrPublicKey where
   show x = "(SchnorrPublicKey " <> _showBytes x <> ")"

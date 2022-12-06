@@ -4,6 +4,7 @@ module Noble.Secp256k1.ECDSA
   , getECDSAPublicKey
   , getECDSASharedSecret
   , recoverECDSAPublicKey
+  , mkPrivateKey
   , verifyECDSA
   , PrivateKey
   , ECDSAPublicKey
@@ -18,7 +19,9 @@ module Noble.Secp256k1.ECDSA
 import Prelude
 
 import Control.Promise (Promise, toAffE)
+import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Function (on)
+import Data.Maybe (Maybe(Just, Nothing))
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Aff (Aff)
@@ -33,7 +36,27 @@ signECDSAWithRecoveredBit msgHash privateKey = toAffE $ _signWithRecoveredBit
   msgHash
   privateKey
 
+newtype PrivateKey = PrivateKey Uint8Array
+
+mkPrivateKey :: Uint8Array -> Maybe PrivateKey
+mkPrivateKey uint8arr 
+  | _isValidPrivateKey uint8arr = Just $ PrivateKey uint8arr
+  | otherwise = Nothing
+
+newtype ECDSAPublicKey = ECDSAPublicKey Uint8Array
+
+type Message = Uint8Array
+
+newtype MessageHash = MessageHash Uint8Array
+
+newtype ECDSASignature = ECDSASignature Uint8Array
+
+newtype ECDSASharedSecret = ECDSASharedSecret Uint8Array
+
+
 foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
+
+foreign import _isValidPrivateKey :: Uint8Array -> Boolean
 
 foreign import _sign
   :: MessageHash -> PrivateKey -> Effect (Promise ECDSASignature)
@@ -65,13 +88,6 @@ foreign import recoverECDSAPublicKey
 
 type IsCompressed = Boolean
 
-foreign import data PrivateKey :: Type
-foreign import data ECDSAPublicKey :: Type
-foreign import data Message :: Type
-foreign import data MessageHash :: Type
-foreign import data ECDSASignature :: Type
-foreign import data ECDSASharedSecret :: Type
-
 type ECDSARecoveredBit = Number
 
 instance Show PrivateKey where
@@ -84,7 +100,7 @@ instance Ord PrivateKey where
   compare = compareViaShow
 
 instance Show ECDSAPublicKey where
-  show x = "(ECDSAPublicKey " <> _showBytes x <> ")"
+  show (ECDSAPublicKey x) = "(ECDSAPublicKey " <> _showBytes x <> ")"
 
 instance Eq ECDSAPublicKey where
   eq = eqViaShow
@@ -92,17 +108,8 @@ instance Eq ECDSAPublicKey where
 instance Ord ECDSAPublicKey where
   compare = compareViaShow
 
-instance Show Message where
-  show x = "(Message " <> _showBytes x <> ")"
-
-instance Eq Message where
-  eq = eqViaShow
-
-instance Ord Message where
-  compare = compareViaShow
-
 instance Show MessageHash where
-  show x = "(MessageHash " <> _showBytes x <> ")"
+  show (MessageHash x) = "(MessageHash " <> _showBytes x <> ")"
 
 instance Eq MessageHash where
   eq = eqViaShow
@@ -111,7 +118,7 @@ instance Ord MessageHash where
   compare = compareViaShow
 
 instance Show ECDSASignature where
-  show x = "(ECDSASignature " <> _showBytes x <> ")"
+  show (ECDSASignature x) = "(ECDSASignature " <> _showBytes x <> ")"
 
 instance Eq ECDSASignature where
   eq = eqViaShow
@@ -120,7 +127,7 @@ instance Ord ECDSASignature where
   compare = compareViaShow
 
 instance Show ECDSASharedSecret where
-  show x = "(ECDSASharedSecret " <> _showBytes x <> ")"
+  show (ECDSASharedSecret x) = "(ECDSASharedSecret " <> _showBytes x <> ")"
 
 instance Eq ECDSASharedSecret where
   eq = eqViaShow
