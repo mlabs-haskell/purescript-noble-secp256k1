@@ -38,13 +38,26 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
       privateKey <- liftEffect $ randomPrivateKey
       let _publicKey = getECDSAPublicKey privateKey true
       pure unit
-    it "signECDSA/verifyECDSA" do
+    it "signECDSA/verifyECDSA DER = false" do
       privateKey <- liftEffect $ randomPrivateKey
       let
         publicKey = getECDSAPublicKey privateKey true
         message = unsafeCoerce privateKey
       messageHash <- sha256 message
-      signature <- signECDSA messageHash privateKey
+      signature <- signECDSA messageHash privateKey false
+      let result = verifyECDSA signature messageHash publicKey
+      result `shouldEqual` true
+      let
+        wrongResult = verifyECDSA (unsafeCoerce messageHash) messageHash
+          publicKey
+      wrongResult `shouldEqual` false
+    it "signECDSA/verifyECDSA DER = true" do
+      privateKey <- liftEffect $ randomPrivateKey
+      let
+        publicKey = getECDSAPublicKey privateKey true
+        message = unsafeCoerce privateKey
+      messageHash <- sha256 message
+      signature <- signECDSA messageHash privateKey true
       let result = verifyECDSA signature messageHash publicKey
       result `shouldEqual` true
       let
@@ -58,7 +71,7 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
         message = unsafeCoerce privateKey
       messageHash <- sha256 message
       Tuple signature recovered <- signECDSAWithRecoveredBit messageHash
-        privateKey
+        privateKey false
       let result = verifyECDSA signature messageHash publicKey
       result `shouldEqual` true
       let

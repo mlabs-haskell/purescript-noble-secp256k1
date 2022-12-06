@@ -5,14 +5,15 @@ module Noble.Secp256k1.ECDSA
   , getECDSASharedSecret
   , recoverECDSAPublicKey
   , verifyECDSA
-  , PrivateKey
+  , DER
   , ECDSAPublicKey
+  , ECDSARecoveredBit
+  , ECDSASharedSecret
+  , ECDSASignature
+  , IsCompressed
   , Message
   , MessageHash
-  , ECDSASignature
-  , ECDSASharedSecret
-  , ECDSARecoveredBit
-  , IsCompressed
+  , PrivateKey
   ) where
 
 import Prelude
@@ -23,25 +24,27 @@ import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Aff (Aff)
 
-signECDSA :: MessageHash -> PrivateKey -> Aff ECDSASignature
-signECDSA msgHash privateKey = toAffE $ _sign msgHash privateKey
+signECDSA :: MessageHash -> PrivateKey -> DER -> Aff ECDSASignature
+signECDSA msgHash privateKey der = toAffE $ _sign msgHash privateKey der
 
 signECDSAWithRecoveredBit
-  :: MessageHash -> PrivateKey -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
-signECDSAWithRecoveredBit msgHash privateKey = toAffE $ _signWithRecoveredBit
+  :: MessageHash -> PrivateKey -> DER -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
+signECDSAWithRecoveredBit msgHash privateKey der = toAffE $ _signWithRecoveredBit
   Tuple
   msgHash
   privateKey
+  der
 
 foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
 
 foreign import _sign
-  :: MessageHash -> PrivateKey -> Effect (Promise ECDSASignature)
+  :: MessageHash -> PrivateKey -> DER -> Effect (Promise ECDSASignature)
 
 foreign import _signWithRecoveredBit
   :: (forall a b. a -> b -> Tuple a b)
   -> MessageHash
   -> PrivateKey
+  -> DER
   -> Effect (Promise (Tuple ECDSASignature ECDSARecoveredBit))
 
 foreign import verifyECDSA
@@ -73,6 +76,8 @@ foreign import data ECDSASignature :: Type
 foreign import data ECDSASharedSecret :: Type
 
 type ECDSARecoveredBit = Number
+
+type DER = Boolean
 
 instance Show PrivateKey where
   show _ = "<PrivateKey contents not exposed>"
