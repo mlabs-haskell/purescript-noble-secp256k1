@@ -28,12 +28,16 @@ signECDSA :: MessageHash -> PrivateKey -> DER -> Aff ECDSASignature
 signECDSA msgHash privateKey der = toAffE $ _sign msgHash privateKey der
 
 signECDSAWithRecoveredBit
-  :: MessageHash -> PrivateKey -> DER -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
-signECDSAWithRecoveredBit msgHash privateKey der = toAffE $ _signWithRecoveredBit
-  Tuple
-  msgHash
-  privateKey
-  der
+  :: MessageHash
+  -> PrivateKey
+  -> DER
+  -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
+signECDSAWithRecoveredBit msgHash privateKey der = toAffE $
+  _signWithRecoveredBit
+    Tuple
+    msgHash
+    privateKey
+    der
 
 foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
 
