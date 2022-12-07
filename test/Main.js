@@ -1,1 +1,1 @@
-exports.randomBytes = x => Uint8Array(crypto.randomBytes(x));
+exports.randomBytes = x => new Uint8Array(crypto.randomBytes(x));

@@ -11,7 +11,7 @@ module Noble.Secp256k1.ECDSA
   , unECDSAPublicKey
   , unMessageHash
   , verifyECDSA
-  , PrivateKey
+  , DER
   , ECDSAPublicKey
   , Message
   , MessageHash
@@ -19,6 +19,7 @@ module Noble.Secp256k1.ECDSA
   , ECDSASharedSecret(ECDSASharedSecret)
   , ECDSARecoveredBit
   , IsCompressed
+  , PrivateKey
   ) where
 
 import Prelude
@@ -33,19 +34,26 @@ import Effect (Effect)
 import Effect.Aff (Aff)
 import Noble.Internal.Helpers (byteLength, compareIntArray, showBytes)
 
-signECDSA :: MessageHash -> PrivateKey -> Aff ECDSASignature
-signECDSA msgHash privateKey = toAffE $ _sign msgHash privateKey
+signECDSA :: MessageHash -> PrivateKey -> DER -> Aff ECDSASignature
+signECDSA msgHash privateKey der = toAffE $ _sign msgHash privateKey der
 
 signECDSAWithRecoveredBit
-  :: MessageHash -> PrivateKey -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
-signECDSAWithRecoveredBit msgHash privateKey = toAffE $ _signWithRecoveredBit
-  Tuple
-  msgHash
-  privateKey
+  :: MessageHash
+  -> PrivateKey
+  -> DER
+  -> Aff (Tuple ECDSASignature ECDSARecoveredBit)
+signECDSAWithRecoveredBit msgHash privateKey der = toAffE $
+  _signWithRecoveredBit
+    Tuple
+    msgHash
+    privateKey
+    der
 
 type Message = Uint8Array
 
 type IsCompressed = Boolean
+
+type DER = Boolean
 
 type ECDSARecoveredBit = Number
 
@@ -154,11 +162,6 @@ instance Ord ECDSASharedSecret where
 
 foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
 
-foreign import _signWithRecoveredBit
-  :: (forall a b. a -> b -> Tuple a b)
-  -> MessageHash
-  -> PrivateKey
-  -> Effect (Promise (Tuple ECDSASignature ECDSARecoveredBit))
 
 foreign import verifyECDSA
   :: ECDSASignature
@@ -180,6 +183,13 @@ foreign import recoverECDSAPublicKey
   -> ECDSAPublicKey
 
 foreign import _sign
-  :: MessageHash -> PrivateKey -> Effect (Promise ECDSASignature)
+  :: MessageHash -> PrivateKey -> DER -> Effect (Promise ECDSASignature)
+
+foreign import _signWithRecoveredBit
+  :: (forall a b. a -> b -> Tuple a b)
+  -> MessageHash
+  -> PrivateKey
+  -> DER
+  -> Effect (Promise (Tuple ECDSASignature ECDSARecoveredBit))
 
 foreign import _isValidPrivateKey :: Uint8Array -> Boolean
