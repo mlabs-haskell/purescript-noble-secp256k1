@@ -31,7 +31,7 @@ import Data.Newtype (class Newtype, unwrap)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Aff (Aff)
-import Noble.Internal.Helpers (compareIntArray, showBytes, byteLength)
+import Noble.Internal.Helpers (byteLength, compareIntArray, showBytes)
 
 signECDSA :: MessageHash -> PrivateKey -> Aff ECDSASignature
 signECDSA msgHash privateKey = toAffE $ _sign msgHash privateKey
@@ -67,7 +67,7 @@ instance Show PrivateKey where
   show _ = "<PrivateKey contents not exposed>"
 
 instance Eq PrivateKey where
-  eq x y =  (compareIntArray `on` unPrivateKey) x y == EQ
+  eq x y = (compareIntArray `on` unPrivateKey) x y == EQ
 
 instance Ord PrivateKey where
   compare = compareIntArray `on` unPrivateKey
@@ -85,7 +85,7 @@ mkECDSAPublicKey uint8arr
 
 unECDSAPublicKey :: ECDSAPublicKey -> Uint8Array
 unECDSAPublicKey (ECDSAPublicKey uint8arr) = uint8arr
-   
+
 instance Show ECDSAPublicKey where
   show (ECDSAPublicKey x) = "(ECDSAPublicKey " <> showBytes x <> ")"
 
