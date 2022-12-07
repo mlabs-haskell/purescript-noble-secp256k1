@@ -4,11 +4,12 @@ exports.getECDSAPublicKey = privateKey => isCompressed =>
   lib.getPublicKey(privateKey, isCompressed);
 
 exports._sign = msgHash => privateKey => der => () =>
-    lib.sign(msgHash, privateKey, {der});
+  lib.sign(msgHash, privateKey, { der });
 
-exports._signWithRecoveredBit =
-    tuple => msgHash => privateKey => der => () =>
-        lib.sign(msgHash, privateKey, { recovered: true, der }).then(res => tuple(res[0])(res[1]));
+exports._signWithRecoveredBit = tuple => msgHash => privateKey => der => () =>
+  lib
+    .sign(msgHash, privateKey, { recovered: true, der })
+    .then(res => tuple(res[0])(res[1]));
 
 exports.verifyECDSA = signature => msgHash => publicKey =>
   lib.verify(signature, msgHash, publicKey);

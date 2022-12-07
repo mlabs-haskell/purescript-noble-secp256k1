@@ -32,7 +32,7 @@ import Data.Newtype (class Newtype, unwrap)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Aff (Aff)
-import Noble.Internal.Helpers (byteLength, compareIntArray, showBytes)
+import Noble.Secp256k1.Internal.Helpers (byteLength, compareIntArray, showBytes)
 
 signECDSA :: MessageHash -> PrivateKey -> DER -> Aff ECDSASignature
 signECDSA msgHash privateKey der = toAffE $ _sign msgHash privateKey der
@@ -161,7 +161,6 @@ instance Ord ECDSASharedSecret where
   compare = compareIntArray `on` unwrap
 
 foreign import getECDSAPublicKey :: PrivateKey -> IsCompressed -> ECDSAPublicKey
-
 
 foreign import verifyECDSA
   :: ECDSASignature

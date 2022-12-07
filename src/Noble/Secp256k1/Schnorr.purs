@@ -18,9 +18,9 @@ import Data.Maybe (Maybe(Just, Nothing))
 import Data.Newtype (class Newtype, unwrap)
 import Effect (Effect)
 import Effect.Aff (Aff)
-import Noble.Internal.Helpers (byteLength, compareIntArray, showBytes)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey) as X
+import Noble.Secp256k1.Internal.Helpers (byteLength, compareIntArray, showBytes)
 
 --------------------------------------------------------------------------------
 -- SchnorrPublicKey

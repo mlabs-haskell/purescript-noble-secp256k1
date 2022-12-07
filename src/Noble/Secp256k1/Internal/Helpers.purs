@@ -1,4 +1,4 @@
-module Noble.Internal.Helpers (showBytes, compareIntArray, byteLength) where
+module Noble.Secp256k1.Internal.Helpers (showBytes, compareIntArray, byteLength) where
 
 import Prelude
 
