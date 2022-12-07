@@ -1,7 +1,7 @@
 {
   "name": "purescript-noble-secp256k1",
   "version": "1.0.0",
-  "description": "",
+  "description": "A thin and not feature-complete wrapper over [noble-secp256k1](https://github.com/paulmillr/noble-secp256k1) JS package.",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -13,5 +13,12 @@
   "license": "ISC",
   "dependencies": {
     "@noble/secp256k1": "^1.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlabs-haskell/purescript-noble-secp256k1.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mlabs-haskell/purescript-noble-secp256k1/issues"
   }
 }

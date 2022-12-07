@@ -9,6 +9,7 @@ You can edit this file as you like.
   , "arraybuffer-types"
   , "effect"
   , "maybe"
+  , "newtype"
   , "prelude"
   , "spec"
   , "tuples"
