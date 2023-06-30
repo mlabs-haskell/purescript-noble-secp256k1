@@ -1,6 +1,4 @@
-import lib from "@noble/secp256k1";
-
-const lib = require("@noble/secp256k1");
+import * as lib from "@noble/secp256k1";
 
 export const _sign = message => privateKey => () =>
   lib.schnorr.sign(message, privateKey);

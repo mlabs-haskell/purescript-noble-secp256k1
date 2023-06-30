@@ -1,4 +1,4 @@
-import lib from "@noble/secp256k1";
+import * as lib from "@noble/secp256k1";
 
 export const getECDSAPublicKey = privateKey => isCompressed =>
   lib.getPublicKey(privateKey, isCompressed);
