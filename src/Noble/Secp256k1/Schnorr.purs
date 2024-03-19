@@ -12,55 +12,47 @@ module Noble.Secp256k1.Schnorr
 import Prelude
 
 import Control.Promise (Promise, toAffE)
-import Data.ArrayBuffer.Types (Uint8Array)
-import Data.Function (on)
+import Data.ByteArray (ByteArray, byteLength)
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(Just, Nothing))
-import Data.Newtype (class Newtype, unwrap)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey)
 import Noble.Secp256k1.ECDSA (Message, PrivateKey) as X
-import Noble.Secp256k1.Internal.Helpers (byteLength, compareIntArray, showBytes)
 
 --------------------------------------------------------------------------------
 -- SchnorrPublicKey
 --------------------------------------------------------------------------------
 
-newtype SchnorrPublicKey = SchnorrPublicKey Uint8Array
+newtype SchnorrPublicKey = SchnorrPublicKey ByteArray
 
-mkSchnorrPublicKey :: Uint8Array -> Maybe SchnorrPublicKey
+mkSchnorrPublicKey :: ByteArray -> Maybe SchnorrPublicKey
 mkSchnorrPublicKey uint8array
   | byteLength uint8array == 32 = Just $ SchnorrPublicKey uint8array
   | otherwise = Nothing
 
-unSchnorrPublicKey :: SchnorrPublicKey -> Uint8Array
+unSchnorrPublicKey :: SchnorrPublicKey -> ByteArray
 unSchnorrPublicKey (SchnorrPublicKey uint8array) = uint8array
 
 instance Show SchnorrPublicKey where
-  show (SchnorrPublicKey x) = "(SchnorrPublicKey " <> showBytes x <> ")"
+  show (SchnorrPublicKey x) = "(SchnorrPublicKey " <> show x <> ")"
 
-instance Eq SchnorrPublicKey where
-  eq x y = (compareIntArray `on` unSchnorrPublicKey) x y == EQ
-
-instance Ord SchnorrPublicKey where
-  compare = compareIntArray `on` unSchnorrPublicKey
+derive newtype instance Eq SchnorrPublicKey
+derive newtype instance Ord SchnorrPublicKey
 
 --------------------------------------------------------------------------------
 -- SchnorrSignature
 --------------------------------------------------------------------------------
 
-newtype SchnorrSignature = SchnorrSignature Uint8Array
+newtype SchnorrSignature = SchnorrSignature ByteArray
 
-derive instance Newtype SchnorrSignature _
+derive instance Generic SchnorrSignature _
 
 instance Show SchnorrSignature where
-  show (SchnorrSignature x) = "(SchnorrSignature " <> showBytes x <> ")"
+  show (SchnorrSignature x) = "(SchnorrSignature " <> show x <> ")"
 
-instance Eq SchnorrSignature where
-  eq x y = (compareIntArray `on` unwrap) x y == EQ
-
-instance Ord SchnorrSignature where
-  compare = (compareIntArray `on` unwrap)
+derive newtype instance Eq SchnorrSignature
+derive newtype instance Ord SchnorrSignature
 
 signSchnorr :: Message -> PrivateKey -> Aff SchnorrSignature
 signSchnorr message privateKey = toAffE $ _sign message privateKey
