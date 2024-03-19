@@ -12,6 +12,7 @@
   "author": "klntsky",
   "license": "ISC",
   "dependencies": {
+    "@mlabs-haskell/json-bigint": "^2.0.0",
     "@noble/secp256k1": "^1.7.0"
   },
   "repository": {
