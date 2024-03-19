@@ -6,10 +6,11 @@ export const getECDSAPublicKey = privateKey => isCompressed =>
 export const _sign = msgHash => privateKey => der => () =>
   lib.sign(msgHash, privateKey, { der });
 
-export const _signWithRecoveredBit = tuple => msgHash => privateKey => der => () =>
-  lib
-    .sign(msgHash, privateKey, { recovered: true, der })
-    .then(res => tuple(res[0])(res[1]));
+export const _signWithRecoveredBit =
+  tuple => msgHash => privateKey => der => () =>
+    lib
+      .sign(msgHash, privateKey, { recovered: true, der })
+      .then(res => tuple(res[0])(res[1]));
 
 export const verifyECDSA = signature => msgHash => publicKey =>
   lib.verify(signature, msgHash, publicKey);
