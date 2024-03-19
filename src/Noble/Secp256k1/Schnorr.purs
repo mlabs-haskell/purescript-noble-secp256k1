@@ -7,6 +7,7 @@ module Noble.Secp256k1.Schnorr
   , getSchnorrPublicKey
   , mkSchnorrPublicKey
   , unSchnorrPublicKey
+  , unSchnorrSignature
   ) where
 
 import Prelude
@@ -60,6 +61,9 @@ signSchnorr message privateKey = toAffE $ _sign message privateKey
 verifySchnorr :: SchnorrSignature -> Message -> SchnorrPublicKey -> Aff Boolean
 verifySchnorr signature message publicKey = toAffE $ _verify signature message
   publicKey
+
+unSchnorrSignature :: SchnorrSignature -> ByteArray
+unSchnorrSignature (SchnorrSignature s) = s
 
 foreign import getSchnorrPublicKey :: PrivateKey -> SchnorrPublicKey
 

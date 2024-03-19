@@ -10,6 +10,7 @@ module Noble.Secp256k1.ECDSA
   , unPrivateKey
   , unECDSAPublicKey
   , unMessageHash
+  , unECDSASignature
   , verifyECDSA
   , DER
   , ECDSAPublicKey
@@ -120,6 +121,9 @@ derive newtype instance Ord MessageHash
 --------------------------------------------------------------------------------
 
 newtype ECDSASignature = ECDSASignature ByteArray
+
+unECDSASignature :: ECDSASignature -> ByteArray
+unECDSASignature (ECDSASignature s) = s
 
 derive instance Newtype ECDSASignature _
 
