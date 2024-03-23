@@ -14,6 +14,7 @@ You can edit this file as you like.
   , "spec"
   , "tuples"
   , "unsafe-coerce"
+  , "bytearrays"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
